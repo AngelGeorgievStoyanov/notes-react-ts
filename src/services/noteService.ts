@@ -19,3 +19,22 @@ export async function createNote(data:INote) {
     }
 
 }
+
+
+export async function getNotesByOwnerId(ownerId:string) {
+
+    const response = await fetch(`${API_URL}/note/getNotesByOwnerId/${ownerId}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    });
+
+    if (response.ok) {
+        return response.json();
+    } else {
+        const result = await response.json();
+        throw new Error(result.message ? result.message : result);
+    }
+
+}

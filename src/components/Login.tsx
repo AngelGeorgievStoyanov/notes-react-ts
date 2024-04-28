@@ -50,7 +50,6 @@ const Login: FC = () => {
 
         await login(data)
             .then((user) => {
-                console.log(user)
                 if (user !== undefined && user.accessToken) {
                     loginContext?.loginUser(user.accessToken);
                     setErrorApi(undefined);
