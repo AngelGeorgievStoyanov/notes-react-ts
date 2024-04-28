@@ -70,3 +70,34 @@ export async function updateNote(
     throw new Error(result.message ? result.message : result);
   }
 }
+
+export async function deleteNoteById(noteId: string) {
+  const response = await fetch(`${API_URL}/note/delete/${noteId}`, {
+    method: "DELETE",
+  });
+  console.log(response);
+  console.log(response.ok);
+  if (response.ok) {
+    return response.json();
+  } else {
+    const result = await response.json();
+    throw new Error(result.message ? result.message : result);
+  }
+}
+
+export async function complitedNote(data: INote, noteId: string) {
+  const response = await fetch(`${API_URL}/note/complited/${noteId}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (response.ok) {
+    return response.json();
+  } else {
+    const result = await response.json();
+    throw new Error(result.message ? result.message : result);
+  }
+}

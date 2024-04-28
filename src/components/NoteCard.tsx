@@ -9,8 +9,9 @@ import { sliceContent } from "../shared/common-types";
 
 interface NoteCardProps {
     note: INote;
-    onEdit: () => void;
-    onComplete: () => void;
+    onDelete: (notedId: string) => void;
+    onEdit: (notedId: string) => void;
+    onComplited: (notedId: string) => void;
 }
 
 interface ExpandMoreProps extends IconButtonProps {
@@ -41,7 +42,7 @@ const dateFormat = (date: string) => {
     return formattedDate;
 }
 
-const NoteCard: FC<NoteCardProps> = ({ note }): ReactElement => {
+const NoteCard: FC<NoteCardProps> = ({ note, onDelete, onEdit, onComplited }): ReactElement => {
 
 
     const [expanded, setExpanded] = useState(false);
@@ -49,6 +50,30 @@ const NoteCard: FC<NoteCardProps> = ({ note }): ReactElement => {
     const handleExpandClick = () => {
         setExpanded(!expanded);
     };
+
+
+
+    const handleDelete = () => {
+        if (note._id) {
+
+            onDelete(note._id)
+        }
+    }
+
+    const handleEdit = () => {
+        if (note._id) {
+
+            onEdit(note._id)
+        }
+    }
+
+    const handleComplited = () => {
+        if (note._id) {
+
+            onComplited(note._id)
+        }
+    }
+
 
     return (
         <Card sx={{ width: '400px', margin: '30px' }}>
@@ -66,9 +91,9 @@ const NoteCard: FC<NoteCardProps> = ({ note }): ReactElement => {
                     {note.editedAt ? 'Edited: ' + dateFormat(note.editedAt) : ''}
                 </Typography>
                 <Box sx={{ display: 'flex' }}>
-                    <Button variant="contained" href={`/edit/${note._id}`} sx={{ ':hover': { color: 'rgb(248 245 245)' }, margin: '5px', width: '100%', background: 'rgb(194 194 224)', color: 'black' }}>Edit</Button>
-                    <Button variant="contained" sx={{ ':hover': { color: 'rgb(248 245 245)' }, margin: '5px', width: '100%', background: 'rgb(194 194 224)', color: 'black' }}>Delete</Button>
-                    <Button variant="contained" sx={{ ':hover': { color: 'rgb(248 245 245)' }, margin: '5px', width: '100%', background: 'rgb(194 194 224)', color: 'black' }}>Complited</Button>
+                    <Button variant="contained" onClick={handleEdit} sx={{ ':hover': { color: 'rgb(248 245 245)' }, margin: '5px', width: '100%', background: 'rgb(194 194 224)', color: 'black' }}>Edit</Button>
+                    <Button variant="contained" onClick={handleDelete} sx={{ ':hover': { color: 'rgb(248 245 245)' }, margin: '5px', width: '100%', background: 'rgb(194 194 224)', color: 'black' }}>Delete</Button>
+                    <Button variant="contained" onClick={handleComplited} sx={{ ':hover': { color: 'rgb(248 245 245)' }, margin: '5px', width: '100%', background: 'rgb(194 194 224)', color: 'black' }}>{note.complited?'Unmark as complete':'Mark as complete'}</Button>
                 </Box>
 
             </CardContent>
@@ -94,3 +119,6 @@ const NoteCard: FC<NoteCardProps> = ({ note }): ReactElement => {
 }
 
 export default NoteCard;
+
+
+
