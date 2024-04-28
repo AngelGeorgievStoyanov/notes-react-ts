@@ -1,4 +1,41 @@
 # React + TypeScript + Vite
+# Notes React TS
+This is a note management application built using React and TypeScript, featuring a RESTful API for backend operations.
+
+# Description
+The application allows users to create, edit, delete, and mark notes as read after registering or logging into their profiles.
+
+# Installation
+1.Clone the repository:
+
+git clone https://github.com/AngelGeorgievStoyanov/notes-react-ts
+
+2.Install dependencies:
+
+cd notes-react-ts
+npm install
+# Usage
+Start the application in development mode:
+npm run dev
+
+# Built With
+* React
+* TypeScript
+* Vite
+* Emotion
+* Material-UI
+* React Hook Form
+* React Router
+* Yup
+* JWT Decode
+
+# Connection with REST API MySQL
+* Default Notes React TS is the connection with REST API.   
+
+# REST API  - https://github.com/AngelGeorgievStoyanov/rest-api-postgresql
+* To run server npm run dev
+
+
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
