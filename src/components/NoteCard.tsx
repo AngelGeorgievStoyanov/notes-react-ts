@@ -11,7 +11,7 @@ interface NoteCardProps {
     note: INote;
     onDelete: (notedId: string) => void;
     onEdit: (notedId: string) => void;
-    onComplited: (notedId: string) => void;
+    onCompleted: (notedId: string) => void;
 }
 
 interface ExpandMoreProps extends IconButtonProps {
@@ -42,7 +42,7 @@ const dateFormat = (date: string) => {
     return formattedDate;
 }
 
-const NoteCard: FC<NoteCardProps> = ({ note, onDelete, onEdit, onComplited }): ReactElement => {
+const NoteCard: FC<NoteCardProps> = ({ note, onDelete, onEdit, onCompleted }): ReactElement => {
 
 
     const [expanded, setExpanded] = useState(false);
@@ -67,54 +67,90 @@ const NoteCard: FC<NoteCardProps> = ({ note, onDelete, onEdit, onComplited }): R
         }
     }
 
-    const handleComplited = () => {
+    const handleCompleted = () => {
         if (note._id) {
 
-            onComplited(note._id)
+            onCompleted(note._id)
         }
     }
 
 
     return (
-        <Card sx={{ width: '400px', margin: '30px' }}>
-            <CardContent>
-                <Typography variant="h5" component="div">
-                    Title:   {note.title}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                    Content:    {note.content ? sliceContent(note.content, 150) : ''}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                    {note.createdAt ? 'Created: ' + dateFormat(note.createdAt) : ''}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                    {note.editedAt ? 'Edited: ' + dateFormat(note.editedAt) : ''}
-                </Typography>
-                <Box sx={{ display: 'flex' }}>
-                    <Button variant="contained" onClick={handleEdit} sx={{ ':hover': { color: 'rgb(248 245 245)' }, margin: '5px', width: '100%', background: 'rgb(194 194 224)', color: 'black' }}>Edit</Button>
-                    <Button variant="contained" onClick={handleDelete} sx={{ ':hover': { color: 'rgb(248 245 245)' }, margin: '5px', width: '100%', background: 'rgb(194 194 224)', color: 'black' }}>Delete</Button>
-                    <Button variant="contained" onClick={handleComplited} sx={{ ':hover': { color: 'rgb(248 245 245)' }, margin: '5px', width: '100%', background: 'rgb(194 194 224)', color: 'black' }}>{note.complited?'Unmark as complete':'Mark as complete'}</Button>
-                </Box>
+        <>
+            <Box sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                maxWidth: '300px',
+                padding: '30px',
+                backgroundColor: '#e5e3e3d9',
+                boxShadow: '3px 2px 5px black',
+                border: 'solid 1px',
+                borderRadius: '0px',
+                margin: '20px',
+                alignItems: 'center',
+                height: 'auto',
+                '& .MuiFormControl-root': { m: 1, width: '100%' }
+            }}>
 
-            </CardContent>
-            <CardActions disableSpacing>
-                <ExpandMore
-                    expand={expanded}
-                    onClick={handleExpandClick}
-                    aria-expanded={expanded}
-                    aria-label="show more"
-                >
-                    {note.content && note.content?.length > 150 ? < ExpandMoreIcon /> : ''}
-                </ExpandMore>
-            </CardActions>
-            <Collapse in={expanded} timeout="auto" unmountOnExit>
-                <CardContent>
-                    <Typography paragraph>
-                        Content: {note.content}
-                    </Typography>
-                </CardContent>
-            </Collapse>
-        </Card>
+                {note.completed ?
+                    <>
+                        <Button variant="contained" onClick={handleCompleted} sx={{ maxWidth: '80%', ':hover': { color: 'rgb(248 245 245)' }, margin: '5px', width: '100%', background: 'rgb(194 194 224)', color: 'black' }}>Unmark as completed</Button>
+                        <Typography variant="body2" color="text.secondary">
+                            {note.completedAt ? 'Completed : ' + dateFormat(note.completedAt) : ''}
+                        </Typography>
+                    </>
+                    : ''}
+                <Card key={note._id} variant="outlined" sx={{ ...(note.completed && { opacity: 0.5, pointerEvents: 'none' }), backgroundColor: '#e5e3e3d9' }}>
+                    {note.completed && (
+                        <>
+                            <div style={{ zIndex: 1, position: 'relative', top: '50%', left: '50%', transform: 'translate(-50%, -50%) rotate(45deg)', width: '100%', height: 2, backgroundColor: 'black', borderRadius: 2, transition: 'width 0.5s ease-in-out', animation: `${note.completed ? 'expandLine 0.5s forwards' : 'none'}` }}></div>
+
+                            <div style={{ zIndex: 1, position: 'relative', top: '50%', left: '50%', transform: 'translate(-50%, -50%) rotate(-45deg)', width: '100%', height: 2, backgroundColor: 'black', borderRadius: 2, transition: 'width 0.5s ease-in-out', transitionDelay: '0.5s', animation: `${note.completed ? 'expandLine 0.5s forwards' : 'none'}` }}></div>
+                        </>
+                    )}
+                    <CardContent>
+
+                        <Typography variant="h5" component="div">
+                            Title:   {note.title}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                            Content:    {note.content ? sliceContent(note.content, 150) : ''}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                            {note.createdAt ? 'Created: ' + dateFormat(note.createdAt) : ''}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                            {note.editedAt ? 'Edited: ' + dateFormat(note.editedAt) : ''}
+                        </Typography>
+                        <Box sx={{ display: 'flex' }}>
+                            <Button variant="contained" onClick={handleEdit} sx={{ ':hover': { color: 'rgb(248 245 245)' }, margin: '5px', width: '100%', background: 'rgb(194 194 224)', color: 'black' }}>Edit</Button>
+                            <Button variant="contained" onClick={handleDelete} sx={{ ':hover': { color: 'rgb(248 245 245)' }, margin: '5px', width: '100%', background: 'rgb(194 194 224)', color: 'black' }}>Delete</Button>
+                            <Button variant="contained" onClick={handleCompleted} sx={{ ':hover': { color: 'rgb(248 245 245)' }, margin: '5px', width: '100%', background: 'rgb(194 194 224)', color: 'black' }}>Mark as complete</Button>
+
+                        </Box>
+
+                    </CardContent>
+                    <CardActions disableSpacing>
+                        <ExpandMore
+                            expand={expanded}
+                            onClick={handleExpandClick}
+                            aria-expanded={expanded}
+                            aria-label="show more"
+                        >
+                            {note.content && note.content?.length > 150 ? < ExpandMoreIcon /> : ''}
+                        </ExpandMore>
+                    </CardActions>
+                    <Collapse in={expanded} timeout="auto" unmountOnExit>
+                        <CardContent>
+                            <Typography paragraph>
+                                Content: {note.content}
+                            </Typography>
+                        </CardContent>
+                    </Collapse>
+                </Card>
+            </Box>
+        </>
     )
 }
 

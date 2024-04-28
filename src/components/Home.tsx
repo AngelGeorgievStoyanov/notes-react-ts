@@ -3,8 +3,8 @@ import { LoginContext } from "./LoginContext";
 import { jwtDecode } from "jwt-decode";
 import { INote } from "../interfaces/INote";
 import NoteCard from "./NoteCard";
-import { complitedNote, deleteNoteById, getNotesByOwnerId } from "../services/noteService";
-import { Grid, MenuItem, Select } from "@mui/material";
+import { completedNote, deleteNoteById, getNotesByOwnerId } from "../services/noteService";
+import { Box, MenuItem, Select } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
 
@@ -18,7 +18,6 @@ const Home: FC = () => {
 
     const [notes, setNotes] = useState<INote[]>()
     const [sortOrder, setSortOrder] = useState<string>('created_asc');
-
     const navigate = useNavigate()
 
     const { token } = useContext(LoginContext);
@@ -59,13 +58,12 @@ const Home: FC = () => {
 
         navigate(`/edit/${noteId}`);
     };
-    const handleComplited = async (noteId: string) => {
+    const handleCompleted = async (noteId: string) => {
         const note = notes?.find(x => x._id === noteId)
-        console.log(note)
-        console.log(note?.complited)
+
         if (note) {
 
-            await complitedNote(note, noteId).then((data) => {
+            await completedNote(note, noteId).then((data) => {
                 const updatedNotesWithNewNote = notes?.map(note => {
                     if (note._id === data._id) {
                         return data;
@@ -79,20 +77,20 @@ const Home: FC = () => {
         }
     };
 
-    
+
     const sortNotes = (notes: INote[]): INote[] => {
         return notes.sort((a, b) => {
             const isNull = (date: Date | undefined | null | string) => {
                 return date === null || date === undefined || typeof date === 'string';
             };
 
-            if (sortOrder === 'edited_asc' || sortOrder === 'edited_desc' || sortOrder === 'complited_asc' || sortOrder === 'complited_desc') {
+            if (sortOrder === 'edited_asc' || sortOrder === 'edited_desc' || sortOrder === 'completed_asc' || sortOrder === 'completed_desc') {
                 const parseDate = (date: string | undefined) => {
                     return date ? new Date(date) : undefined;
                 };
 
-                const aDate = sortOrder.includes('edited') ? parseDate(a.editedAt) : parseDate(a.complitedAt);
-                const bDate = sortOrder.includes('edited') ? parseDate(b.editedAt) : parseDate(b.complitedAt);
+                const aDate = sortOrder.includes('edited') ? parseDate(a.editedAt) : parseDate(a.completedAt);
+                const bDate = sortOrder.includes('edited') ? parseDate(b.editedAt) : parseDate(b.completedAt);
 
                 if (isNull(aDate) && isNull(bDate)) {
                     return (b.createdAt ? new Date(b.createdAt).getTime() : Infinity) - (a.createdAt ? new Date(a.createdAt).getTime() : Infinity);
@@ -139,13 +137,14 @@ const Home: FC = () => {
                 <MenuItem value="created_desc">Created Date (Descending)</MenuItem >
                 <MenuItem value="edited_asc">Edited Date (Ascending)</MenuItem >
                 <MenuItem value="edited_desc">Edited Date (Descending)</MenuItem >
-                <MenuItem value="complited_asc">Complited Date (Ascending)</MenuItem >
-                <MenuItem value="complited_desc">Complited Date (Descending)</MenuItem >
+                <MenuItem value="completed_asc">Completed Date (Ascending)</MenuItem >
+                <MenuItem value="completed_desc">Completed Date (Descending)</MenuItem >
             </Select>
-            <Grid container spacing={2} sx={{ alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
+            <Box sx={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-around', minHeight: '100vh' }}>
+
                 {notes && notes.length > 0 ?
-                    sortNotes(notes).map(x => <NoteCard key={x._id} note={x} onDelete={() => x._id && handleDelete(x._id)} onEdit={() => x._id && handleEdit(x._id)} onComplited={() => x._id && handleComplited(x._id)} />) : ''}
-            </Grid>
+                    sortNotes(notes).map(x => <NoteCard key={x._id} note={x} onDelete={() => x._id && handleDelete(x._id)} onEdit={() => x._id && handleEdit(x._id)} onCompleted={() => x._id && handleCompleted(x._id)} />) : ''}
+            </Box>
         </>
     )
 }

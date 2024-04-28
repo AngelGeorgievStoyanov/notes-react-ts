@@ -4,7 +4,7 @@ export interface INote {
   content?: string;
   createdAt?: string;
   editedAt?: string;
-  complited?: boolean;
-  complitedAt?: string;
+  completed?: boolean;
+  completedAt?: string;
   _ownerId?: string;
 }

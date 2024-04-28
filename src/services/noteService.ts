@@ -85,8 +85,8 @@ export async function deleteNoteById(noteId: string) {
   }
 }
 
-export async function complitedNote(data: INote, noteId: string) {
-  const response = await fetch(`${API_URL}/note/complited/${noteId}`, {
+export async function completedNote(data: INote, noteId: string) {
+  const response = await fetch(`${API_URL}/note/completed/${noteId}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
