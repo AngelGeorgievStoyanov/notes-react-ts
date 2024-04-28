@@ -8,10 +8,14 @@ import NotFound from './components/NotFound/NotFound';
 import { LoginContext } from './components/LoginContext';
 import CreateNote from './components/CreateNote';
 import EditNote from './components/EditNote';
+import Footer from './components/Footer';
+import Header from './components/Header';
 
 const Layout: FC = () => (
   <>
+    <Header />
     <Outlet />
+    <Footer />
   </>
 );
 
