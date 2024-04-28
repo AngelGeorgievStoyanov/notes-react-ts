@@ -4,7 +4,7 @@ import { jwtDecode } from "jwt-decode";
 import { INote } from "../interfaces/INote";
 import NoteCard from "./NoteCard";
 import { complitedNote, deleteNoteById, getNotesByOwnerId } from "../services/noteService";
-import { Grid } from "@mui/material";
+import { Grid, MenuItem, Select } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
 
@@ -17,6 +17,7 @@ const Home: FC = () => {
 
 
     const [notes, setNotes] = useState<INote[]>()
+    const [sortOrder, setSortOrder] = useState<string>('created_asc');
 
     const navigate = useNavigate()
 
@@ -78,13 +79,72 @@ const Home: FC = () => {
         }
     };
 
+    
+    const sortNotes = (notes: INote[]): INote[] => {
+        return notes.sort((a, b) => {
+            const isNull = (date: Date | undefined | null | string) => {
+                return date === null || date === undefined || typeof date === 'string';
+            };
+
+            if (sortOrder === 'edited_asc' || sortOrder === 'edited_desc' || sortOrder === 'complited_asc' || sortOrder === 'complited_desc') {
+                const parseDate = (date: string | undefined) => {
+                    return date ? new Date(date) : undefined;
+                };
+
+                const aDate = sortOrder.includes('edited') ? parseDate(a.editedAt) : parseDate(a.complitedAt);
+                const bDate = sortOrder.includes('edited') ? parseDate(b.editedAt) : parseDate(b.complitedAt);
+
+                if (isNull(aDate) && isNull(bDate)) {
+                    return (b.createdAt ? new Date(b.createdAt).getTime() : Infinity) - (a.createdAt ? new Date(a.createdAt).getTime() : Infinity);
+                }
+                else if (isNull(aDate)) {
+                    return 1;
+                }
+                else if (isNull(bDate)) {
+                    return -1;
+                }
+                else {
+                    return sortOrder.includes('asc') ? (aDate as Date).getTime() - (bDate as Date).getTime() : (bDate as Date).getTime() - (aDate as Date).getTime();
+                }
+            }
+            else {
+                switch (sortOrder) {
+                    case 'created_asc':
+                        return (a.createdAt ? new Date(a.createdAt).getTime() : Infinity) - (b.createdAt ? new Date(b.createdAt).getTime() : Infinity);
+                    case 'created_desc':
+                        return (b.createdAt ? new Date(b.createdAt).getTime() : Infinity) - (a.createdAt ? new Date(a.createdAt).getTime() : Infinity);
+                    case 'edited_asc':
+                        return (a.editedAt ? new Date(a.editedAt).getTime() : Infinity) - (b.editedAt ? new Date(b.editedAt).getTime() : Infinity);
+                    case 'edited_desc':
+                        return (b.editedAt ? new Date(b.editedAt).getTime() : Infinity) - (a.editedAt ? new Date(a.editedAt).getTime() : Infinity);
+                    default:
+                        return 0;
+                }
+            }
+        });
+    };
+
 
     return (
         <>
+            <Select
+                value={sortOrder}
+                onChange={(e) => setSortOrder(e.target.value)}
+                sx={{
+                    backgroundColor: '#1976d2',
+                    color: 'white'
+                }}
+            >
+                <MenuItem value="created_asc">Created Date (Ascending)</MenuItem >
+                <MenuItem value="created_desc">Created Date (Descending)</MenuItem >
+                <MenuItem value="edited_asc">Edited Date (Ascending)</MenuItem >
+                <MenuItem value="edited_desc">Edited Date (Descending)</MenuItem >
+                <MenuItem value="complited_asc">Complited Date (Ascending)</MenuItem >
+                <MenuItem value="complited_desc">Complited Date (Descending)</MenuItem >
+            </Select>
             <Grid container spacing={2} sx={{ alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
                 {notes && notes.length > 0 ?
-                    notes.map(x => <NoteCard key={x._id} note={x} onDelete={() => x._id && handleDelete(x._id)} onEdit={() => x._id && handleEdit(x._id)} onComplited={() => x._id && handleComplited(x._id)} />)
-                    : ''}
+                    sortNotes(notes).map(x => <NoteCard key={x._id} note={x} onDelete={() => x._id && handleDelete(x._id)} onEdit={() => x._id && handleEdit(x._id)} onComplited={() => x._id && handleComplited(x._id)} />) : ''}
             </Grid>
         </>
     )
