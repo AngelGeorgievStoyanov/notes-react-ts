@@ -28,10 +28,10 @@ const CreateNote: React.FC = () => {
     }
 
     const handleCreateSubmit = async (data: NoteFormData) => {
-        if (_ownerId) {
+        if (_ownerId && accessToken) {
             data._ownerId = _ownerId
 
-            await createNote(data).then((note) => {
+            await createNote(data, accessToken).then((note) => {
 
                 if (note) {
                     navigate('/');

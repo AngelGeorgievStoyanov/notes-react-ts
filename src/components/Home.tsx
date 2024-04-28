@@ -29,9 +29,9 @@ const Home: FC = () => {
     }
 
     useEffect(() => {
-        if (userId) {
+        if (userId && accessToken) {
 
-            getNotesByOwnerId(userId).then((data: INote[]) => {
+            getNotesByOwnerId(userId, accessToken).then((data: INote[]) => {
                 setNotes(data)
             }).catch((err: Error) => {
 
@@ -61,9 +61,9 @@ const Home: FC = () => {
     const handleCompleted = async (noteId: string) => {
         const note = notes?.find(x => x._id === noteId)
 
-        if (note) {
+        if (note && accessToken) {
 
-            await completedNote(note, noteId).then((data) => {
+            await completedNote(note, noteId, accessToken).then((data) => {
                 const updatedNotesWithNewNote = notes?.map(note => {
                     if (note._id === data._id) {
                         return data;

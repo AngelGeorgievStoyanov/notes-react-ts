@@ -28,8 +28,8 @@ const EditNote: React.FC = () => {
     }
 
     useEffect(() => {
-        if (_ownerId && noteId) {
-            getNoteById(noteId).then((data) => {
+        if (_ownerId && noteId && accessToken) {
+            getNoteById(noteId, accessToken).then((data) => {
                 setNote(data[0])
             }).catch((err) => {
                 console.log(err.message)
@@ -38,10 +38,10 @@ const EditNote: React.FC = () => {
     }, [])
 
     const onSubmit = (formData: NoteFormData) => {
-      
-        if (note && _ownerId && noteId) {
 
-            updateNote(formData, noteId, _ownerId).then((data: INote) => {
+        if (note && _ownerId && noteId && accessToken) {
+
+            updateNote(formData, noteId, _ownerId, accessToken).then((data: INote) => {
                 if (data) {
                     navigate('/')
                 }
