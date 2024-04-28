@@ -6,6 +6,7 @@ import Register from './components/Register';
 import Home from './components/Home';
 import NotFound from './components/NotFound/NotFound';
 import { LoginContext } from './components/LoginContext';
+import CreateNote from './components/CreateNote';
 
 const Layout: FC = () => (
   <>
@@ -29,6 +30,10 @@ const router = createBrowserRouter([
       {
         path: '/register',
         element: <Register />,
+      },
+      {
+        path: '/create-note',
+        element: <CreateNote />,
       },
     ],
   },
