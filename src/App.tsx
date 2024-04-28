@@ -10,6 +10,7 @@ import CreateNote from './components/CreateNote';
 import EditNote from './components/EditNote';
 import Footer from './components/Footer';
 import Header from './components/Header';
+import GuardedRoute from './components/GuardedRoute';
 
 const Layout: FC = () => (
   <>
@@ -26,7 +27,13 @@ const router = createBrowserRouter([
     children: [
       {
         path: '/',
-        element: <Home />,
+        element: <GuardedRoute />,
+        children: [
+          {
+            path: '',
+            element: <Home />
+          }
+        ]
       },
       {
         path: '/login',
@@ -38,11 +45,23 @@ const router = createBrowserRouter([
       },
       {
         path: '/create-note',
-        element: <CreateNote />,
+        element: <GuardedRoute />,
+        children: [
+          {
+            path: '',
+            element: <CreateNote />
+          }
+        ]
       },
       {
         path: '/edit/:noteId',
-        element: <EditNote />,
+        element: <GuardedRoute />,
+        children: [
+          {
+            path: '',
+            element: <EditNote />
+          }
+        ]
       },
     ],
   },

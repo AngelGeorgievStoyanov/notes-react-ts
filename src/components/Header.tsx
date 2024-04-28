@@ -29,7 +29,7 @@ const Header: FC = () => {
         userId = decode._id
     }
 
-    
+
     const logout = () => {
         const accessToken = localStorage.getItem('accessToken');
         if (accessToken) {
@@ -43,11 +43,11 @@ const Header: FC = () => {
         <Box sx={{ flexGrow: 1 }}>
             <AppBar position="static">
                 <Toolbar sx={{
-                    display: 'flex', justifyContent: 'space-between', paddingBottom: '20px', '@media(max-width: 760px)': {
+                    display: 'flex', justifyContent: 'space-between', '@media(max-width: 760px)': {
                         display: 'flex', flexDirection: 'row', flexWrap: 'wrap'
                     }
                 }}>
-                    {accessToken !== undefined && userId  ?
+                    {accessToken !== undefined && userId ?
                         <>
                             <Typography variant="h6" component="div" sx={{ display: 'flex', justifyContent: 'space-between' }}>
                                 {accessToken !== undefined ?
