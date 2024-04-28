@@ -1,11 +1,12 @@
 import { INote } from "../interfaces/INote";
 import { API_URL } from "../utils/baseUrl";
 
-export async function createNote(data: INote) {
+export async function createNote(data: INote, token: string) {
   const response = await fetch(`${API_URL}/note/create`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify(data),
   });
@@ -18,11 +19,12 @@ export async function createNote(data: INote) {
   }
 }
 
-export async function getNotesByOwnerId(ownerId: string) {
+export async function getNotesByOwnerId(ownerId: string, token: string) {
   const response = await fetch(`${API_URL}/note/getNotesByOwnerId/${ownerId}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
     },
   });
 
@@ -34,11 +36,12 @@ export async function getNotesByOwnerId(ownerId: string) {
   }
 }
 
-export async function getNoteById(noteId: string) {
+export async function getNoteById(noteId: string, token: string) {
   const response = await fetch(`${API_URL}/note/getNoteById/${noteId}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
     },
   });
 
@@ -53,12 +56,14 @@ export async function getNoteById(noteId: string) {
 export async function updateNote(
   data: INote,
   noteId: string,
-  _ownerId: string
+  _ownerId: string,
+  token: string
 ) {
   const response = await fetch(`${API_URL}/note/update/${noteId}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify({ data, _ownerId }),
   });
@@ -75,8 +80,7 @@ export async function deleteNoteById(noteId: string) {
   const response = await fetch(`${API_URL}/note/delete/${noteId}`, {
     method: "DELETE",
   });
-  console.log(response);
-  console.log(response.ok);
+
   if (response.ok) {
     return response.json();
   } else {
@@ -85,11 +89,16 @@ export async function deleteNoteById(noteId: string) {
   }
 }
 
-export async function completedNote(data: INote, noteId: string) {
+export async function completedNote(
+  data: INote,
+  noteId: string,
+  token: string
+) {
   const response = await fetch(`${API_URL}/note/completed/${noteId}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify(data),
   });
