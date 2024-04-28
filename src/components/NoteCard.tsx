@@ -67,6 +67,7 @@ const NoteCard: FC<NoteCardProps> = ({ note }): ReactElement => {
                 </Typography>
                 <Box sx={{ display: 'flex' }}>
                     <Button variant="contained" href={`/edit/${note._id}`} sx={{ ':hover': { color: 'rgb(248 245 245)' }, margin: '5px', width: '100%', background: 'rgb(194 194 224)', color: 'black' }}>Edit</Button>
+                    <Button variant="contained" sx={{ ':hover': { color: 'rgb(248 245 245)' }, margin: '5px', width: '100%', background: 'rgb(194 194 224)', color: 'black' }}>Delete</Button>
                     <Button variant="contained" sx={{ ':hover': { color: 'rgb(248 245 245)' }, margin: '5px', width: '100%', background: 'rgb(194 194 224)', color: 'black' }}>Complited</Button>
                 </Box>
 

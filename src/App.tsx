@@ -7,6 +7,7 @@ import Home from './components/Home';
 import NotFound from './components/NotFound/NotFound';
 import { LoginContext } from './components/LoginContext';
 import CreateNote from './components/CreateNote';
+import EditNote from './components/EditNote';
 
 const Layout: FC = () => (
   <>
@@ -34,6 +35,10 @@ const router = createBrowserRouter([
       {
         path: '/create-note',
         element: <CreateNote />,
+      },
+      {
+        path: '/edit/:noteId',
+        element: <EditNote />,
       },
     ],
   },

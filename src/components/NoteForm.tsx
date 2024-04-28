@@ -1,11 +1,12 @@
 import React from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
-import { TextField, Button, Box } from '@mui/material';
+import { TextField, Button, Box, InputLabel } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 
 export interface NoteFormData {
     _ownerId?: string;
-    title: string;
-    content: string;
+    title?: string;
+    content?: string;
 }
 
 interface FormProps {
@@ -14,9 +15,16 @@ interface FormProps {
 }
 
 const NoteForm: React.FC<FormProps> = ({ onSubmit, defaultValues }) => {
+
+    const navigate = useNavigate()
     const { register, handleSubmit, formState: { errors } } = useForm<NoteFormData>({
-        defaultValues: defaultValues || {}
+        values: { title: defaultValues?.title, content: defaultValues?.content } || {}
     });
+
+    const goBack = () => {
+        navigate(-1);
+
+    }
 
     return (
 
@@ -35,16 +43,16 @@ const NoteForm: React.FC<FormProps> = ({ onSubmit, defaultValues }) => {
             onSubmit={handleSubmit(onSubmit)}
         >
             <Box>
+                <InputLabel>Title</InputLabel>
                 <TextField
-                    label="Title"
                     {...register('title', { required: 'Title is required.' })}
                     error={!!errors.title}
                     helperText={errors.title ? errors.title.message : ''}
                 />
             </Box>
             <Box>
+                <InputLabel>Content</InputLabel>
                 <TextField
-                    label="Content"
                     multiline
                     rows={10}
                     {...register('content', { required: 'Content is required.' })}
@@ -52,7 +60,11 @@ const NoteForm: React.FC<FormProps> = ({ onSubmit, defaultValues }) => {
                     helperText={errors.content ? errors.content.message : ''}
                 />
             </Box>
-            <Button variant="contained" type="submit">Save</Button>
+            <Box sx={{ display: 'flex', width: '100%', justifyContent: 'space-around' }}>
+                <Button variant="contained" type="submit">{!defaultValues?.title || !defaultValues?.content ? 'Save' : 'Edit'}</Button>
+                <Button variant="contained" onClick={goBack} sx={{ ':hover': { color: 'rgb(248 245 245)' }, background: 'rgb(194 194 224)', color: 'black' }}  >BACK</Button>
+            </Box>
+
         </Box>
     );
 };
