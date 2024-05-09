@@ -42,8 +42,8 @@ const Home: FC = () => {
     }, [])
 
     const handleDelete = async (noteId: string) => {
-        if (noteId) {
-            await deleteNoteById(noteId).then((data) => {
+        if (noteId && accessToken) {
+            await deleteNoteById(noteId, accessToken).then((data) => {
                 if (data) {
                     setNotes(prevNotes => prevNotes?.filter(note => note._id !== noteId));
                     navigate('/')

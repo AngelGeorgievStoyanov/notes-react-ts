@@ -76,9 +76,12 @@ export async function updateNote(
   }
 }
 
-export async function deleteNoteById(noteId: string) {
+export async function deleteNoteById(noteId: string, token: string) {
   const response = await fetch(`${API_URL}/note/delete/${noteId}`, {
     method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
   });
 
   if (response.ok) {

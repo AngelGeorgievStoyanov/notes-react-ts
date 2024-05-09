@@ -19,7 +19,7 @@ interface ExpandMoreProps extends IconButtonProps {
 }
 
 const ExpandMore = styled((props: ExpandMoreProps) => {
-    const { expand, ...other } = props;
+    const {  ...other } = props;
     return <IconButton {...other} />;
 })(({ theme, expand }) => ({
     transform: !expand ? 'rotate(0deg)' : 'rotate(180deg)',
@@ -46,6 +46,7 @@ const NoteCard: FC<NoteCardProps> = ({ note, onDelete, onEdit, onCompleted }): R
 
 
     const [expanded, setExpanded] = useState(false);
+    const [hideX, setHideX] = useState(false);
 
     const handleExpandClick = () => {
         setExpanded(!expanded);
@@ -53,12 +54,18 @@ const NoteCard: FC<NoteCardProps> = ({ note, onDelete, onEdit, onCompleted }): R
 
 
 
+
+    const confirmDelete = (noteId: string) => {
+        if (window.confirm("Are you sure you want to delete this note?")) {
+            onDelete(noteId);
+        }
+    };
+
     const handleDelete = () => {
         if (note._id) {
-
-            onDelete(note._id)
+            confirmDelete(note._id);
         }
-    }
+    };
 
     const handleEdit = () => {
         if (note._id) {
@@ -69,8 +76,14 @@ const NoteCard: FC<NoteCardProps> = ({ note, onDelete, onEdit, onCompleted }): R
 
     const handleCompleted = () => {
         if (note._id) {
-
+          
+            if(expanded){
+                setExpanded(false)
+            }
             onCompleted(note._id)
+
+            setHideX(note.completed ? note.completed : false)
+           
         }
     }
 
@@ -101,14 +114,19 @@ const NoteCard: FC<NoteCardProps> = ({ note, onDelete, onEdit, onCompleted }): R
                         </Typography>
                     </>
                     : ''}
-                <Card key={note._id} variant="outlined" sx={{ ...(note.completed && { opacity: 0.5, pointerEvents: 'none' }), backgroundColor: '#e5e3e3d9' }}>
-                    {note.completed && (
+                <Card key={note._id} variant="outlined" sx={{ ...(note.completed && { opacity: 0.5, pointerEvents: 'none' }), backgroundColor: '#e5e3e3d9', border: '0px' }}>
+                    {note.completed && !hideX ? (
                         <>
                             <div style={{ zIndex: 1, position: 'relative', top: '50%', left: '50%', transform: 'translate(-50%, -50%) rotate(45deg)', width: '100%', height: 2, backgroundColor: 'black', borderRadius: 2, transition: 'width 0.5s ease-in-out', animation: `${note.completed ? 'expandLine 0.5s forwards' : 'none'}` }}></div>
-
                             <div style={{ zIndex: 1, position: 'relative', top: '50%', left: '50%', transform: 'translate(-50%, -50%) rotate(-45deg)', width: '100%', height: 2, backgroundColor: 'black', borderRadius: 2, transition: 'width 0.5s ease-in-out', transitionDelay: '0.5s', animation: `${note.completed ? 'expandLine 0.5s forwards' : 'none'}` }}></div>
                         </>
-                    )}
+                    ) :
+                        hideX && (
+                            <>
+                                <div style={{ zIndex: 1, position: 'relative', top: '50%', left: '50%', transform: 'translate(-50%, -50%) rotate(45deg)', width: '100%', height: 2, backgroundColor: 'black', borderRadius: 2, transition: 'width 0.5s ease-in-out', animation: `${hideX ? 'collapseLine 0.5s forwards' : 'none'}` }}></div>
+                                <div style={{ zIndex: 1, position: 'relative', top: '50%', left: '50%', transform: 'translate(-50%, -50%) rotate(-45deg)', width: '100%', height: 2, backgroundColor: 'black', borderRadius: 2, transition: 'width 0.5s ease-in-out', transitionDelay: '0.5s', animation: `${hideX ? 'collapseLine 0.5s forwards' : 'none'}` }}></div>
+                            </>
+                        )}
                     <CardContent>
 
                         <Typography variant="h5" component="div">

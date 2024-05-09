@@ -6,11 +6,10 @@ import Register from './components/Register';
 import Home from './components/Home';
 import NotFound from './components/NotFound/NotFound';
 import { LoginContext } from './components/LoginContext';
-import CreateNote from './components/CreateNote';
-import EditNote from './components/EditNote';
 import Footer from './components/Footer';
 import Header from './components/Header';
 import GuardedRoute from './components/GuardedRoute';
+import CreateEditNote from './components/CreateEditNote';
 
 const Layout: FC = () => (
   <>
@@ -49,7 +48,7 @@ const router = createBrowserRouter([
         children: [
           {
             path: '',
-            element: <CreateNote />
+            element: <CreateEditNote />
           }
         ]
       },
@@ -59,7 +58,7 @@ const router = createBrowserRouter([
         children: [
           {
             path: '',
-            element: <EditNote />
+            element: <CreateEditNote />
           }
         ]
       },

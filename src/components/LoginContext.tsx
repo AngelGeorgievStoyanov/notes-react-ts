@@ -1,4 +1,3 @@
-// LoginContext.tsx
 import { createContext, FC, ReactNode, useEffect, useState } from 'react';
 
 export type LoginContextType = {
