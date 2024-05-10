@@ -83,11 +83,10 @@ const NotesAsTable: FC = () => {
             renderCell: (params) => (
                 <Box >
                     {params.row.completedAt ? (
-                        <Box sx={{ display: 'flex', flexDirection: 'row' }}>
-                            <Typography variant="body2" sx={{ marginRight: '5px' }}>{dateFormat(params.value)}</Typography>
-                            <Button variant="outlined" onClick={() => params && handleUnmarkCompleted(params.id.toString())}>Unmark as completed</Button>
-
-                        </Box>
+                            <Box sx={{ display: 'flex', flexDirection: 'row' }}>
+                                <Typography variant="body2" sx={{ marginRight: '5px' }}>{dateFormat(params.value)}</Typography>
+                                <Button variant="outlined" sx={{ ':hover': { background: '#1976d2',color:'white' }, margin: '5px', background: 'rgb(194 194 224)', color: 'black' , zIndex:1}} onClick={() => params && handleUnmarkCompleted(params.id.toString())}>Unmark as completed </Button>
+                            </Box>
                     ) : ''}
                 </Box>
             ),
@@ -244,18 +243,19 @@ const NotesAsTable: FC = () => {
                         <DataGrid
                             key={currentPage}
                             sx={{ maxWidth: '100%', bgcolor: 'white' }}
-                            rows={sortNotes(notes).map((log, index) => ({ id: log._id || index, ...log }))}
+                            rows={sortNotes(notes).map((note, index) => ({ id: note._id || index, ...note }))}
                             columns={columns}
                             initialState={{
                                 pagination: {
                                     paginationModel: { page: currentPage !== undefined ? currentPage : 0, pageSize: pageSize !== undefined ? pageSize : 5 }
                                 },
                             }}
-
+                            getRowClassName={(params) => {
+                                return params.row.completedAt ? 'completed-row' : '';
+                            }}
                             pageSizeOptions={[5, 10]}
                             checkboxSelection
                             onRowSelectionModelChange={handleSelectionModelChange}
-
                             onPaginationModelChange={(newPage) => changePage(newPage)}
 
 

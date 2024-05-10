@@ -18,3 +18,20 @@
 }
 
 
+
+.completed-row {
+  display: flex;
+  align-items: center;
+}
+
+
+.completed-row::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background-color: black;
+  animation: expandLine 1s forwards;
+  z-index: 0
+}
