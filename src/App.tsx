@@ -9,6 +9,7 @@ import { LoginContext } from './components/LoginContext';
 import Footer from './components/Footer';
 import Header from './components/Header';
 import GuardedRoute from './components/GuardedRoute';
+import NotesAsTable from './components/NotesAsTable';
 import CreateEditNote from './components/CreateEditNote';
 
 const Layout: FC = () => (
@@ -59,6 +60,16 @@ const router = createBrowserRouter([
           {
             path: '',
             element: <CreateEditNote />
+          }
+        ]
+      },
+      {
+        path: '/notes-table',
+        element: <GuardedRoute />,
+        children: [
+          {
+            path: '',
+            element: <NotesAsTable />
           }
         ]
       },

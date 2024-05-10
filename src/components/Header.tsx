@@ -56,6 +56,7 @@ const Header: FC = () => {
                                 }
                             </Typography>
                             <Button component={Link} sx={{ margin: '2px', padding: '2px', boxSizing: 'content-box' }} to={'/'} color="inherit"  >HOME</Button>
+                            <Button component={Link} sx={{ margin: '2px', padding: '2px', boxSizing: 'content-box' }} to={'/notes-table'} color="inherit"  >Notes in table</Button>
                             <Button component={Link} sx={{ margin: '2px', padding: '2px', boxSizing: 'content-box' }} to={'/create-note'} color="inherit" >CREATE NOTE</Button>
                             <Button onClick={logout} sx={{ margin: '2px', padding: '2px', boxSizing: 'content-box' }} color="inherit" >LOGOUT</Button>
                         </>

@@ -19,7 +19,7 @@ interface ExpandMoreProps extends IconButtonProps {
 }
 
 const ExpandMore = styled((props: ExpandMoreProps) => {
-    const {  ...other } = props;
+    const { expand, ...other } = props;
     return <IconButton {...other} />;
 })(({ theme, expand }) => ({
     transform: !expand ? 'rotate(0deg)' : 'rotate(180deg)',
@@ -76,14 +76,14 @@ const NoteCard: FC<NoteCardProps> = ({ note, onDelete, onEdit, onCompleted }): R
 
     const handleCompleted = () => {
         if (note._id) {
-          
-            if(expanded){
+
+            if (expanded) {
                 setExpanded(false)
             }
             onCompleted(note._id)
 
             setHideX(note.completed ? note.completed : false)
-           
+
         }
     }
 

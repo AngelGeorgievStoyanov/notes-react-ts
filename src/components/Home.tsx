@@ -111,10 +111,6 @@ const Home: FC = () => {
                         return (a.createdAt ? new Date(a.createdAt).getTime() : Infinity) - (b.createdAt ? new Date(b.createdAt).getTime() : Infinity);
                     case 'created_desc':
                         return (b.createdAt ? new Date(b.createdAt).getTime() : Infinity) - (a.createdAt ? new Date(a.createdAt).getTime() : Infinity);
-                    case 'edited_asc':
-                        return (a.editedAt ? new Date(a.editedAt).getTime() : Infinity) - (b.editedAt ? new Date(b.editedAt).getTime() : Infinity);
-                    case 'edited_desc':
-                        return (b.editedAt ? new Date(b.editedAt).getTime() : Infinity) - (a.editedAt ? new Date(a.editedAt).getTime() : Infinity);
                     default:
                         return 0;
                 }
