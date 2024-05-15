@@ -12,3 +12,5 @@ export function sliceContent(content: string, maxLength: number) {
         return content;
     }
 }
+
+export const pageSize = [5,10]

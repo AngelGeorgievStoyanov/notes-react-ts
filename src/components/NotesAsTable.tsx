@@ -5,6 +5,7 @@ import { completedNote, getNotesByOwnerId, tableCompletedNotes, tableDeleteNotes
 import { LoginContext } from "./LoginContext";
 import { jwtDecode } from "jwt-decode";
 import { DataGrid, GridColDef, GridPaginationModel, GridRowSelectionModel } from '@mui/x-data-grid';
+import { pageSize } from "../shared/common-types";
 
 
 type decode = {
@@ -14,11 +15,9 @@ let userId: string | undefined;
 
 const NotesAsTable: FC = () => {
     const [notes, setNotes] = useState<INote[]>()
-    const [pageSize, setPageSize] = useState<number>(5);
-    const [currentPage, setCurrentPage] = useState<number>(0);
     const [selectedRow, setSelectedRow] = useState<GridRowSelectionModel>([]);
-    const [sortOrder, setSortOrder] = useState<string>('created_asc');
-
+    const [totalNotes, setTotalNotes] = useState<number>(0)
+    const [paginationAndSorting, setPaginationAndSorting] = useState({ page: 0, pageSize: 5, sortOrder: 'created_asc' });
     const { token } = useContext(LoginContext);
     const accessToken = token ? token : localStorage.getItem('accessToken') ? localStorage.getItem('accessToken') : undefined
 
@@ -30,15 +29,16 @@ const NotesAsTable: FC = () => {
     useEffect(() => {
         if (userId && accessToken) {
 
-            getNotesByOwnerId(userId, accessToken).then((data: INote[]) => {
-                setNotes(data)
+            getNotesByOwnerId(userId, accessToken, paginationAndSorting).then((data: { totalCount: number; notes: INote[] }) => {
+                setNotes(data.notes)
+                setTotalNotes(data.totalCount)
             }).catch((err: Error) => {
 
                 console.log(err.message);
 
             });
         }
-    }, [])
+    }, [paginationAndSorting])
 
 
     const columns: GridColDef<INote>[] = [
@@ -83,10 +83,10 @@ const NotesAsTable: FC = () => {
             renderCell: (params) => (
                 <Box >
                     {params.row.completedAt ? (
-                            <Box sx={{ display: 'flex', flexDirection: 'row' }}>
-                                <Typography variant="body2" sx={{ marginRight: '5px' }}>{dateFormat(params.value)}</Typography>
-                                <Button variant="outlined" sx={{ ':hover': { background: '#1976d2',color:'white' }, margin: '5px', background: 'rgb(194 194 224)', color: 'black' , zIndex:1}} onClick={() => params && handleUnmarkCompleted(params.id.toString())}>Unmark as completed </Button>
-                            </Box>
+                        <Box sx={{ display: 'flex', flexDirection: 'row' }}>
+                            <Typography variant="body2" sx={{ marginRight: '5px' }}>{dateFormat(params.value)}</Typography>
+                            <Button variant="outlined" sx={{ ':hover': { background: '#1976d2', color: 'white' }, margin: '5px', background: 'rgb(194 194 224)', color: 'black', zIndex: 1 }} onClick={() => params && handleUnmarkCompleted(params.id.toString())}>Unmark as completed </Button>
+                        </Box>
                     ) : ''}
                 </Box>
             ),
@@ -120,8 +120,12 @@ const NotesAsTable: FC = () => {
 
 
     const changePage = (newPage: GridPaginationModel) => {
-        setCurrentPage(newPage.page);
-        setPageSize(newPage.pageSize);
+        setPaginationAndSorting(prevState => ({
+            ...prevState,
+            page: newPage.page,
+            pageSize: newPage.pageSize
+        }));
+
     }
 
     const handeleDeleteRows = () => {
@@ -130,14 +134,22 @@ const NotesAsTable: FC = () => {
         }
     }
 
+    const handleSortOrderChange = (newSortOrder: string) => {
+        setPaginationAndSorting(prevState => ({
+            ...prevState,
+            sortOrder: newSortOrder
+        }));
+    };
+
     const confirmDelete = async (selectedRow: GridRowSelectionModel, accessToken: string) => {
         const selectedNotes = notes?.filter(note => note._id && selectedRow.includes(note._id));
         if (selectedNotes && selectedNotes.length > 0) {
             const titles = selectedNotes.map((note, i) => i + 1 + '. ' + note.title).join("\n");
             if (window.confirm(`Are you sure you want to delete the following notes: \n${titles}?`)) {
-                await tableDeleteNotes(selectedRow, accessToken)
-                    .then((data) => {
-                        setNotes(data);
+                await tableDeleteNotes(selectedRow, accessToken, paginationAndSorting)
+                    .then((data: { totalCount: number; notes: INote[] }) => {
+                        setNotes(data.notes)
+                        setTotalNotes(data.totalCount)
                     })
                     .catch((err) => {
                         console.log(err.message);
@@ -146,17 +158,19 @@ const NotesAsTable: FC = () => {
         }
     };
 
-    const dateFormat = (date: string) => {
-        const isoDate = new Date(date);
-        let timePart = '';
-        if (!isNaN(isoDate.getTime())) {
-            const hours = isoDate.getHours().toString().padStart(2, '0');
-            const minutes = isoDate.getMinutes().toString().padStart(2, '0');
-            const seconds = isoDate.getSeconds().toString().padStart(2, '0');
-            timePart = `${hours}:${minutes}:${seconds} `;
+    const dateFormat = (date: string | undefined) => {
+        if (date) {
+            const isoDate = new Date(date);
+            let timePart = '';
+            if (!isNaN(isoDate.getTime())) {
+                const hours = isoDate.getHours().toString().padStart(2, '0');
+                const minutes = isoDate.getMinutes().toString().padStart(2, '0');
+                const seconds = isoDate.getSeconds().toString().padStart(2, '0');
+                timePart = `${hours}:${minutes}:${seconds} `;
+            }
+            const formattedDate = `${timePart}${isoDate.getDate()}-${isoDate.getMonth() + 1}-${isoDate.getFullYear()}`;
+            return formattedDate;
         }
-        const formattedDate = `${timePart}${isoDate.getDate()}-${isoDate.getMonth() + 1}-${isoDate.getFullYear()}`;
-        return formattedDate;
     }
 
 
@@ -168,8 +182,10 @@ const NotesAsTable: FC = () => {
                 .filter((id): id is string => id !== undefined);
 
             if (selectedNotes && selectedNotes.length > 0 && accessToken) {
-                tableCompletedNotes(selectedNotes, accessToken).then((data: INote[]) => {
-                    setNotes(data)
+
+                tableCompletedNotes(selectedNotes, accessToken, paginationAndSorting).then((data: { totalCount: number; notes: INote[] }) => {
+                    setNotes(data.notes)
+                    setTotalNotes(data.totalCount)
                 }).catch((err) => {
                     console.log(err.message);
                 })
@@ -177,53 +193,11 @@ const NotesAsTable: FC = () => {
         }
     };
 
-    const sortNotes = (notes: INote[]): INote[] => {
-        return notes.sort((a, b) => {
-            const isNull = (date: Date | undefined | null | string) => {
-                return date === null || date === undefined || typeof date === 'string';
-            };
-
-            if (sortOrder === 'edited_asc' || sortOrder === 'edited_desc' || sortOrder === 'completed_asc' || sortOrder === 'completed_desc') {
-                const parseDate = (date: string | undefined) => {
-                    return date ? new Date(date) : undefined;
-                };
-
-                const aDate = sortOrder.includes('edited') ? parseDate(a.editedAt) : parseDate(a.completedAt);
-                const bDate = sortOrder.includes('edited') ? parseDate(b.editedAt) : parseDate(b.completedAt);
-
-                if (isNull(aDate) && isNull(bDate)) {
-                    return (b.createdAt ? new Date(b.createdAt).getTime() : Infinity) - (a.createdAt ? new Date(a.createdAt).getTime() : Infinity);
-                }
-                else if (isNull(aDate)) {
-                    return 1;
-                }
-                else if (isNull(bDate)) {
-                    return -1;
-                }
-                else {
-                    return sortOrder.includes('asc') ? (aDate as Date).getTime() - (bDate as Date).getTime() : (bDate as Date).getTime() - (aDate as Date).getTime();
-                }
-            }
-            else {
-                switch (sortOrder) {
-                    case 'created_asc':
-                        return (a.createdAt ? new Date(a.createdAt).getTime() : Infinity) - (b.createdAt ? new Date(b.createdAt).getTime() : Infinity);
-                    case 'created_desc':
-                        return (b.createdAt ? new Date(b.createdAt).getTime() : Infinity) - (a.createdAt ? new Date(a.createdAt).getTime() : Infinity);
-                    default:
-                        return 0;
-                }
-            }
-        });
-
-    };
-
-
     return (
         <>
             <Select
-                value={sortOrder}
-                onChange={(e) => setSortOrder(e.target.value)}
+                value={paginationAndSorting.sortOrder}
+                onChange={(e) => handleSortOrderChange(e.target.value)}
                 sx={{
                     backgroundColor: '#1976d2',
                     color: 'white'
@@ -241,24 +215,24 @@ const NotesAsTable: FC = () => {
                 {(notes !== undefined && notes.length > 0) ?
                     <>
                         <DataGrid
-                            key={currentPage}
+                            key={paginationAndSorting.page}
                             sx={{ maxWidth: '100%', bgcolor: 'white' }}
-                            rows={sortNotes(notes).map((note, index) => ({ id: note._id || index, ...note }))}
+                            rows={notes.map((note, index) => ({ id: note._id || index, ...note }))}
+                            rowCount={totalNotes}
                             columns={columns}
                             initialState={{
                                 pagination: {
-                                    paginationModel: { page: currentPage !== undefined ? currentPage : 0, pageSize: pageSize !== undefined ? pageSize : 5 }
+                                    paginationModel: { page: paginationAndSorting.page !== undefined ? paginationAndSorting.page : 0, pageSize: paginationAndSorting.pageSize !== undefined ? paginationAndSorting.pageSize : 5 }
                                 },
                             }}
                             getRowClassName={(params) => {
                                 return params.row.completedAt ? 'completed-row' : '';
                             }}
-                            pageSizeOptions={[5, 10]}
+                            pageSizeOptions={pageSize}
                             checkboxSelection
                             onRowSelectionModelChange={handleSelectionModelChange}
                             onPaginationModelChange={(newPage) => changePage(newPage)}
-
-
+                            paginationMode="server"
                         />
                         <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-around', flexWrap: 'wrap' }}>
                             <Button variant="contained" onClick={handleCompleted} sx={{ ':hover': { color: 'rgb(248 245 245)' }, margin: '5px', background: 'rgb(194 194 224)', color: 'black' }} disabled={selectedRow.length === 0}>Mark as complete</Button>

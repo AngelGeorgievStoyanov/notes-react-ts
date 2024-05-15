@@ -4,8 +4,9 @@ import { jwtDecode } from "jwt-decode";
 import { INote } from "../interfaces/INote";
 import NoteCard from "./NoteCard";
 import { completedNote, deleteNoteById, getNotesByOwnerId } from "../services/noteService";
-import { Box, MenuItem, Select } from "@mui/material";
+import { Box, MenuItem, Select, TablePagination } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import { pageSize } from "../shared/common-types";
 
 
 type decode = {
@@ -17,7 +18,9 @@ const Home: FC = () => {
 
 
     const [notes, setNotes] = useState<INote[]>()
-    const [sortOrder, setSortOrder] = useState<string>('created_asc');
+    const [paginationAndSorting, setPaginationAndSorting] = useState({ page: 0, pageSize: 5, sortOrder: 'created_asc' });
+    const [totalNotes, setTotalNotes] = useState<number>(0)
+
     const navigate = useNavigate()
 
     const { token } = useContext(LoginContext);
@@ -31,15 +34,16 @@ const Home: FC = () => {
     useEffect(() => {
         if (userId && accessToken) {
 
-            getNotesByOwnerId(userId, accessToken).then((data: INote[]) => {
-                setNotes(data)
+            getNotesByOwnerId(userId, accessToken, paginationAndSorting).then((data: { totalCount: number; notes: INote[] }) => {
+                setNotes(data.notes)
+                setTotalNotes(data.totalCount)
             }).catch((err: Error) => {
 
                 console.log(err.message);
 
             });
         }
-    }, [])
+    }, [paginationAndSorting])
 
     const handleDelete = async (noteId: string) => {
         if (noteId && accessToken) {
@@ -58,6 +62,7 @@ const Home: FC = () => {
 
         navigate(`/edit/${noteId}`);
     };
+    
     const handleCompleted = async (noteId: string) => {
         const note = notes?.find(x => x._id === noteId)
 
@@ -77,70 +82,70 @@ const Home: FC = () => {
         }
     };
 
+    const handleChangePage = (event: React.MouseEvent<HTMLButtonElement> | null, newPage: number,) => {
+        setPaginationAndSorting(prevState => ({
+            ...prevState,
+            page: newPage
 
-    const sortNotes = (notes: INote[]): INote[] => {
-        return notes.sort((a, b) => {
-            const isNull = (date: Date | undefined | null | string) => {
-                return date === null || date === undefined || typeof date === 'string';
-            };
+        }));
+    };
 
-            if (sortOrder === 'edited_asc' || sortOrder === 'edited_desc' || sortOrder === 'completed_asc' || sortOrder === 'completed_desc') {
-                const parseDate = (date: string | undefined) => {
-                    return date ? new Date(date) : undefined;
-                };
+    const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,) => {
+        setPaginationAndSorting(prevState => ({
+            ...prevState,
 
-                const aDate = sortOrder.includes('edited') ? parseDate(a.editedAt) : parseDate(a.completedAt);
-                const bDate = sortOrder.includes('edited') ? parseDate(b.editedAt) : parseDate(b.completedAt);
+            pageSize: parseInt(event.target.value, 10)
 
-                if (isNull(aDate) && isNull(bDate)) {
-                    return (b.createdAt ? new Date(b.createdAt).getTime() : Infinity) - (a.createdAt ? new Date(a.createdAt).getTime() : Infinity);
-                }
-                else if (isNull(aDate)) {
-                    return 1;
-                }
-                else if (isNull(bDate)) {
-                    return -1;
-                }
-                else {
-                    return sortOrder.includes('asc') ? (aDate as Date).getTime() - (bDate as Date).getTime() : (bDate as Date).getTime() - (aDate as Date).getTime();
-                }
-            }
-            else {
-                switch (sortOrder) {
-                    case 'created_asc':
-                        return (a.createdAt ? new Date(a.createdAt).getTime() : Infinity) - (b.createdAt ? new Date(b.createdAt).getTime() : Infinity);
-                    case 'created_desc':
-                        return (b.createdAt ? new Date(b.createdAt).getTime() : Infinity) - (a.createdAt ? new Date(a.createdAt).getTime() : Infinity);
-                    default:
-                        return 0;
-                }
-            }
-        });
+        }));
+    };
+
+
+    const handleSortOrderChange = (newSortOrder: string) => {
+
+        setPaginationAndSorting(prevState => ({
+            ...prevState,
+            sortOrder: newSortOrder
+        }));
     };
 
 
     return (
         <>
-            <Select
-                value={sortOrder}
-                onChange={(e) => setSortOrder(e.target.value)}
-                sx={{
-                    backgroundColor: '#1976d2',
-                    color: 'white'
-                }}
-            >
-                <MenuItem value="created_asc">Created Date (Ascending)</MenuItem >
-                <MenuItem value="created_desc">Created Date (Descending)</MenuItem >
-                <MenuItem value="edited_asc">Edited Date (Ascending)</MenuItem >
-                <MenuItem value="edited_desc">Edited Date (Descending)</MenuItem >
-                <MenuItem value="completed_asc">Completed Date (Ascending)</MenuItem >
-                <MenuItem value="completed_desc">Completed Date (Descending)</MenuItem >
-            </Select>
-            <Box sx={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-around', minHeight: '100vh' }}>
 
-                {notes && notes.length > 0 ?
-                    sortNotes(notes).map(x => <NoteCard key={x._id} note={x} onDelete={() => x._id && handleDelete(x._id)} onEdit={() => x._id && handleEdit(x._id)} onCompleted={() => x._id && handleCompleted(x._id)} />) : ''}
-            </Box>
+                <Select
+                    value={paginationAndSorting.sortOrder}
+                    onChange={(e) => handleSortOrderChange(e.target.value)}
+                    sx={{
+                        backgroundColor: '#1976d2',
+                        color: 'white'
+                    }}
+                >
+                    <MenuItem value="created_asc">Created Date (Ascending)</MenuItem >
+                    <MenuItem value="created_desc">Created Date (Descending)</MenuItem >
+                    <MenuItem value="edited_asc">Edited Date (Ascending)</MenuItem >
+                    <MenuItem value="edited_desc">Edited Date (Descending)</MenuItem >
+                    <MenuItem value="completed_asc">Completed Date (Ascending)</MenuItem >
+                    <MenuItem value="completed_desc">Completed Date (Descending)</MenuItem >
+                </Select>
+                <Box sx={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-around', minHeight: '100vh' }}>
+
+                    {notes && notes.length > 0 ?
+                        notes.map(x => <NoteCard key={x._id} note={x} onDelete={() => x._id && handleDelete(x._id)} onEdit={() => x._id && handleEdit(x._id)} onCompleted={() => x._id && handleCompleted(x._id)} />) : ''}
+                </Box>
+                <TablePagination
+                    component="div"
+                    count={totalNotes}
+                    page={paginationAndSorting.page}
+                    onPageChange={handleChangePage}
+                    rowsPerPage={paginationAndSorting.pageSize}
+                    onRowsPerPageChange={handleChangeRowsPerPage}
+                    rowsPerPageOptions={pageSize}
+                    sx={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center'
+                    }}
+                />
         </>
     )
 }

@@ -20,13 +20,27 @@ export async function createNote(data: INote, token: string) {
   }
 }
 
-export async function getNotesByOwnerId(ownerId: string, token: string) {
-  const response = await fetch(`${API_URL}/note/getNotesByOwnerId/${ownerId}`, {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+type PaginationAndSorting = {
+  page: number;
+  pageSize: number;
+  sortOrder: string;
+};
+
+export async function getNotesByOwnerId(
+  ownerId: string,
+  token: string,
+  paginationAndSorting: PaginationAndSorting
+) {
+  const { page, pageSize, sortOrder } = paginationAndSorting;
+  const response = await fetch(
+    `${API_URL}/note/getNotesByOwnerId/${ownerId}/page/${page}/pageSize/${pageSize}/sortOrder/${sortOrder}`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
 
   if (response.ok) {
     return response.json();
@@ -114,14 +128,22 @@ export async function completedNote(
   }
 }
 
-export async function tableCompletedNotes(data: string[], token: string) {
+export async function tableCompletedNotes(
+  data: string[],
+  token: string,
+  paginationAndSorting: PaginationAndSorting
+) {
+  const bodyData = {
+    data: data,
+    paginationAndSorting: paginationAndSorting,
+  };
   const response = await fetch(`${API_URL}/note/tableCompleted`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify(data),
+    body: JSON.stringify(bodyData),
   });
 
   if (response.ok) {
@@ -132,14 +154,22 @@ export async function tableCompletedNotes(data: string[], token: string) {
   }
 }
 
-export async function tableDeleteNotes(data: GridRowSelectionModel, token: string) {
+export async function tableDeleteNotes(
+  data: GridRowSelectionModel,
+  token: string,
+  paginationAndSorting: PaginationAndSorting
+) {
+  const bodyData = {
+    data: data,
+    paginationAndSorting: paginationAndSorting,
+  };
   const response = await fetch(`${API_URL}/note/tableDeleteNotes`, {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify(data),
+    body: JSON.stringify(bodyData),
   });
 
   if (response.ok) {
