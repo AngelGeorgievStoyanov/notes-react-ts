@@ -1,9 +1,9 @@
-import { FC, useContext, useEffect, useState } from 'react';
+import { FC, useContext, useState } from 'react';
 import { Box, Container, Grid, Typography, TextField, Button, InputLabel, Snackbar, Alert } from '@mui/material';
 import { LoginContext } from './LoginContext';
 import { jwtDecode } from 'jwt-decode';
-import { createNote, getNoteById, updateNote } from '../services/noteService';
-import { useNavigate, useParams } from 'react-router-dom';
+import { createNote, updateNote } from '../services/noteService';
+import { useLoaderData, useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { INote } from '../interfaces/INote';
 import * as yup from "yup";
@@ -27,8 +27,9 @@ const schema = yup.object().shape({
 });
 
 const CreateEditNote: FC = () => {
+    const loaderData = useLoaderData();
+    const note = Array.isArray(loaderData) && loaderData.length > 0 ? loaderData[0] : undefined;
 
-    const [note, setNote] = useState<{ title: string, content: string } | undefined>(undefined);
     const [errorApi, setErrorApi] = useState<string>();
     const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
@@ -47,22 +48,7 @@ const CreateEditNote: FC = () => {
     }
 
 
-
-    useEffect(() => {
-        if (noteId && accessToken) {
-            getNoteById(noteId, accessToken).then((data) => {
-                setNote(data[0])
-            }).catch((err) => {
-                console.log(err.message)
-            })
-
-        } else {
-            setNote(undefined)
-            setValidationErrors({})
-        }
-
-    }, [noteId, accessToken]);
-
+  
 
     const { register, handleSubmit, formState: { errors, isDirty }, watch } = useForm<NoteFormData>({
         values: { title: note?.title || '', content: note?.content || '' } || {}
